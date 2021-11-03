@@ -1,5 +1,6 @@
-import { attr$, child$, VirtualDOM } from "@youwol/flux-view"
+import { attr$, child$, render, VirtualDOM } from "@youwol/flux-view"
 import { BehaviorSubject, ReplaySubject } from "rxjs"
+import { StoryView } from "./story.view"
 
 /**
  * Option of rendering mode
@@ -72,7 +73,7 @@ function toolBarButton(params: {
  * workflow mode. A toolbar allows to switch between the modes. Options
  * for full-screen mode as well as opening in new tab are provided.
  */
-export class FluxAppView implements VirtualDOM {
+export class FluxAppView extends StoryView {
 
     static defaultClass = 'w-100 overflow-auto'
 
@@ -83,37 +84,35 @@ export class FluxAppView implements VirtualDOM {
     }
     public readonly modes: string[]
 
-    public readonly class = 'flux-app-view'
+    public readonly class = 'flux-app-view d-flex flex-column h-100'
     public readonly style: { [key: string]: string } = {}
 
     public readonly selectedMode$ = new BehaviorSubject<RenderMode>(RenderMode.Runner)
     public readonly children: VirtualDOM[]
 
     public readonly renderedIframe$ = new ReplaySubject<HTMLIFrameElement>(1)
+
     constructor(params: {
-        projectId: string
-        wrapperDiv?: {
-            class?: string,
-            style?: { [key: string]: string }
-        },
+        projectId: string,
         modes: string[]
     }) {
+        super({
+            defaultOptions: {
+                wrapper: {
+                    style: {
+                        width: "100%",
+                        "aspect-ratio": "2"
+                    }
+                }
+            }
+        })
         Object.assign(this, params)
-
-
-        let iframeParentClass = params.wrapperDiv && params.wrapperDiv.class
-            ? params.wrapperDiv.class
-            : FluxAppView.defaultClass
-        let iframeParentStyle = params.wrapperDiv && params.wrapperDiv.style
-            ? params.wrapperDiv.style
-            : {}
 
         this.children = [
             this.fluxAppToolBarView(),
             {
-                class: iframeParentClass,
-                style: iframeParentStyle,
                 id: params.projectId,
+                class: 'flex-grow-1',
                 children: [
                     child$(
                         this.selectedMode$,
@@ -134,7 +133,8 @@ export class FluxAppView implements VirtualDOM {
         ]
     }
 
-    fluxAppToolBarView() {
+    fluxAppToolBarView(): VirtualDOM {
+
         return {
             class: 'w-100 d-flex justify-content-center my-1',
             children: [

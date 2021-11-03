@@ -1,8 +1,9 @@
 import { flattenSchemaWithValue, Factory } from "@youwol/flux-core"
-import { child$, HTMLElement$, VirtualDOM } from "@youwol/flux-view"
+import { child$, HTMLElement$, render, VirtualDOM } from "@youwol/flux-view"
 import { AutoForm } from '@youwol/flux-fv-widgets'
 import { from, ReplaySubject } from "rxjs"
 import { map } from "rxjs/operators"
+import { StoryView } from "./story.view"
 
 /**
  * Module's settings view.
@@ -10,7 +11,7 @@ import { map } from "rxjs/operators"
  * It displays an automatically generated form based on the schema defined for the persistent data.
  * 
  */
-export class ModuleSettingsView implements VirtualDOM {
+export class ModuleSettingsView extends StoryView {
 
     public readonly toolboxName: string
     public readonly brickId: string
@@ -28,6 +29,18 @@ export class ModuleSettingsView implements VirtualDOM {
         brickId: string,
         version?: string
     }) {
+        super({
+            defaultOptions: {
+                wrapper: {
+                    style: {
+                        height: "500px",
+                        'max-width': '500px',
+                        width: "100%"
+                    }
+                }
+            }
+        })
+
         Object.assign(this, params)
 
         this.children = [
